@@ -12,3 +12,4 @@
 *.controller -merge eol=lf
 *.spriteatlas -merge eol=lf
 *.bundle filter=lfs diff=lfs merge=lfs -text
+.fbx filter=lfs diff=lfs merge=lfs -text

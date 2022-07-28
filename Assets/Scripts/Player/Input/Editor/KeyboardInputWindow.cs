@@ -1,13 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-
 namespace XVerse.Player.Input
 {
-    public class KeyboardInputWindow : EditorWindow
+    internal class KeyboardInputWindow : EditorWindow
     {
         private static float offset = 5;
         private static int keyboardCellSize = 30;
@@ -16,22 +14,24 @@ namespace XVerse.Player.Input
         private int setIndex, groupIndex, inputIndex;
         private Dictionary<KeyCode, List<string>> keyCodeInputSetting;
 
-        public static void ShowWindow(int set, int group, int input, ref bool open, ref KeyboardInputWindow inputwindow)
+        private InputSetting inputSetting;
+
+        public static void ShowWindow(int group, int input, InputSetting inputSetting, ref bool open, ref KeyboardInputWindow inputwindow)
         {
             var window = CreateInstance<KeyboardInputWindow>();
 
             open = true;
             inputwindow = window;
 
-            window.setIndex = set;
+            window.inputSetting = inputSetting;
             window.groupIndex = group;
             window.inputIndex = input;
-            window.titleContent = new GUIContent(String.Format("{0} / {1} / Keyboard Input", XInput.Instance[window.setIndex].KeyboardInputSetting[window.groupIndex].InputGroupName, XInput.Instance[window.setIndex].KeyboardInputSetting[window.groupIndex].Inputs[window.inputIndex].InputName));
+            window.titleContent = new GUIContent(String.Format("{0} / {1} / Keyboard Input", window.inputSetting.KeyboardInputSetting[window.groupIndex].InputGroupName, window.inputSetting.KeyboardInputSetting[window.groupIndex].Inputs[window.inputIndex].InputName));
             window.minSize = new Vector2(keyboardCellSize * 15 + offset * 15, keyboardCellSize * 5 + offset * 6);
             window.maxSize = window.minSize;
 
             window.keyCodeInputSetting = new Dictionary<KeyCode, List<string>>();
-            foreach (KeyboardInputGroup keyboardInputGroup in XInput.Instance[window.setIndex].KeyboardInputSetting)
+            foreach (KeyboardInputGroup keyboardInputGroup in window.inputSetting.KeyboardInputSetting)
             {
                 foreach (KeyboardInput keyboardInput in keyboardInputGroup.Inputs)
                 {
@@ -129,7 +129,7 @@ namespace XVerse.Player.Input
                         GUI.backgroundColor = assignedKeyColor;
                         if (GUI.Button(new Rect(x, y, keyboardCellSize * keyboardSize[i][j], keyboardCellSize), content))
                         {
-                            XInput.Instance[setIndex].KeyboardInputSetting[groupIndex].Inputs[inputIndex].InputKeyName = (KeyboardInputName)Enum.Parse(typeof(KeyboardInputName), keyboardCode[i][j].ToString());
+                            inputSetting.KeyboardInputSetting[groupIndex].Inputs[inputIndex].InputKeyName = (KeyboardInputName)Enum.Parse(typeof(KeyboardInputName), keyboardCode[i][j].ToString());
                             this.Close();
                         }
                     }
@@ -139,7 +139,7 @@ namespace XVerse.Player.Input
                         GUI.backgroundColor = unassignedKeyColor;
                         if (GUI.Button(new Rect(x, y, keyboardCellSize * keyboardSize[i][j], keyboardCellSize), content))
                         {
-                            XInput.Instance[setIndex].KeyboardInputSetting[groupIndex].Inputs[inputIndex].InputKeyName = (KeyboardInputName)Enum.Parse(typeof(KeyboardInputName), keyboardCode[i][j].ToString());
+                            inputSetting.KeyboardInputSetting[groupIndex].Inputs[inputIndex].InputKeyName = (KeyboardInputName)Enum.Parse(typeof(KeyboardInputName), keyboardCode[i][j].ToString());
                             this.Close();
                         }
                     }

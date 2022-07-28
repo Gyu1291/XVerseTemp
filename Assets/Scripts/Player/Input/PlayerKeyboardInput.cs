@@ -6,6 +6,7 @@ namespace XVerse.Player.Input
 {
     public enum KeyboardInputName
     {
+        None = -1,
         BackQuote, Alpha1, Alpha2, Alpha3, Alpha4, Alpha5,
         Alpha6, Alpha7, Alpha8, Alpha9, Alpha0, Minus, Plus, Backspace,
         Tab, Q, W, E, R, T, Y, U, I, O, P, LeftBracket, RightBracket, Backslash,
@@ -20,7 +21,7 @@ namespace XVerse.Player.Input
     }
 
     [Serializable]
-    public class KeyboardInput : PlayerInput
+    public sealed class KeyboardInput : PlayerInput
     {
         public KeyboardInputName InputKeyName;
         public KeyboardInputType InputKeyType;
@@ -74,18 +75,10 @@ namespace XVerse.Player.Input
                 InputKeyName = keyName;
             }
         }
-
-        public void CopyFrom(KeyboardInput keyboard)
-        {
-            if (keyboard == null) { return; }
-            InputName = keyboard.InputName;
-            InputKeyName = keyboard.InputKeyName;
-            InputKeyType = keyboard.InputKeyType;
-        }
     }
 
     [Serializable]
-    public class KeyboardInputGroup : PlayerInputGroup<KeyboardInput>
+    public sealed class KeyboardInputGroup : PlayerInputGroup<KeyboardInput>
     {
         public KeyboardInputGroup(string name) : this()
         {
@@ -100,18 +93,6 @@ namespace XVerse.Player.Input
         public KeyboardInputGroup()
         {
             Inputs = new List<KeyboardInput>();
-        }
-
-        public void CopyFrom(KeyboardInputGroup keyboardGroup)
-        {
-            if (keyboardGroup == null) { return; }
-            foreach (KeyboardInput keyboard in keyboardGroup.Inputs)
-            {
-                KeyboardInput input = new KeyboardInput();
-                input.CopyFrom(keyboard);
-                Inputs.Add(input);
-            }
-            InputGroupName = keyboardGroup.InputGroupName;
         }
     }
 

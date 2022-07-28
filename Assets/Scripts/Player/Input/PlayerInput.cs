@@ -1,21 +1,19 @@
 using System.Collections.Generic;
-using System;
 
 namespace XVerse.Player.Input
 {
-    [Serializable]
+    [System.Serializable]
     public class PlayerInput
     {
         public string InputName;
         protected bool isActiveInput;
-        public Action InputAction;
         public void InputLock() { isActiveInput = false; }
         public void InputUnLock() { isActiveInput = true; }
 
         public PlayerInput() { }
     }
 
-    [Serializable]
+    [System.Serializable]
     public class PlayerInputGroup<T> where T : PlayerInput
     {
         public string InputGroupName;

@@ -6,6 +6,7 @@ namespace XVerse.Player.Input
 {
     public enum MouseInputName
     {
+        None = -1,
         Left, Right, Wheel
     }
 
@@ -15,7 +16,7 @@ namespace XVerse.Player.Input
     }
 
     [Serializable]
-    public class MouseInput : PlayerInput
+    public sealed class MouseInput : PlayerInput
     {
         public MouseInputName InputMouseName;
         public MouseInputType InputMouseType;
@@ -63,19 +64,10 @@ namespace XVerse.Player.Input
                 InputMouseName = keyName;
             }
         }
-
-        public void CopyFrom(MouseInput mouse)
-        {
-            if (mouse == null) { return; }
-            InputName = mouse.InputName;
-            InputMouseName = mouse.InputMouseName;
-            InputMouseType = mouse.InputMouseType;
-        }
-
     }
 
     [Serializable]
-    public class MouseInputGroup : PlayerInputGroup<MouseInput>
+    public sealed class MouseInputGroup : PlayerInputGroup<MouseInput>
     {
         public MouseInputGroup(string name) : this()
         {
@@ -91,18 +83,5 @@ namespace XVerse.Player.Input
         {
             Inputs = new List<MouseInput>();
         }
-
-        public void CopyFrom(MouseInputGroup mouseGroup)
-        {
-            if (mouseGroup == null) { return; }
-            foreach (MouseInput mouse in mouseGroup.Inputs)
-            {
-                MouseInput input = new MouseInput();
-                input.CopyFrom(mouse);
-                Inputs.Add(input);
-            }
-            InputGroupName = mouseGroup.InputGroupName;
-        }
-
     }
 }

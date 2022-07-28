@@ -3,41 +3,18 @@ using UnityEngine;
 
 namespace XVerse.Player.Input
 {
+    [CreateAssetMenu(fileName = "New InputSetting", menuName = "Player/Input Setting", order = 0)]
     [System.Serializable]
-    public class InputSetting
+    public sealed class InputSetting : ScriptableObject
     {
         public string InputSettingName;
         public List<KeyboardInputGroup> KeyboardInputSetting;
         public List<MouseInputGroup> MouseInputSetting;
 
-        public InputSetting(string name, List<KeyboardInputGroup> keySets, List<MouseInputGroup> mouseSets)
-        {
-            InputSettingName = name;
-            KeyboardInputSetting = keySets;
-            MouseInputSetting = mouseSets;
-        }
         public InputSetting()
         {
             KeyboardInputSetting = new List<KeyboardInputGroup>();
             MouseInputSetting = new List<MouseInputGroup>();
-        }
-
-        public void CopyFrom(InputSetting inputSetting)
-        {
-            if (inputSetting == null) { return; }
-            InputSettingName = inputSetting.InputSettingName;
-            foreach (KeyboardInputGroup keyboardInputGroup in inputSetting.KeyboardInputSetting)
-            {
-                KeyboardInputGroup inputGroup = new KeyboardInputGroup();
-                inputGroup.CopyFrom(keyboardInputGroup);
-                KeyboardInputSetting.Add(inputGroup);
-            }
-            foreach (MouseInputGroup mouseInputGroup in inputSetting.MouseInputSetting)
-            {
-                MouseInputGroup inputGroup = new MouseInputGroup();
-                inputGroup.CopyFrom(mouseInputGroup);
-                MouseInputSetting.Add(inputGroup);
-            }
         }
 
         private string getString<T, U>(string name) where T : PlayerInputGroup<U> where U : PlayerInput, new()
@@ -45,7 +22,7 @@ namespace XVerse.Player.Input
             return new U() is KeyboardInput ? "KeyboardInput" : "MouseInput";
         }
 
-        public U GetInput<T, U>(string name, List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
+        private U GetInput<T, U>(string name, List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
         {
             string str = getString<T, U>(name);
 
@@ -59,7 +36,7 @@ namespace XVerse.Player.Input
             return input;
         }
 
-        public T GetInputGroup<T, U>(string name, List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
+        private T GetInputGroup<T, U>(string name, List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
         {
             string str = getString<T, U>(name);
 
@@ -72,12 +49,12 @@ namespace XVerse.Player.Input
             return input;
         }
 
-        public void InputLockAll<T, U>(string name, List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
+        private void InputLockAll<T, U>(string name, List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
         {
             GetInputGroup<T, U>(name, group).InputLockAll();
         }
 
-        public void InputLockAll<T, U>(List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
+        private void InputLockAll<T, U>(List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
         {
             foreach (T t in group)
             {
@@ -85,18 +62,12 @@ namespace XVerse.Player.Input
             }
         }
 
-        public void InputLockAll()
-        {
-            InputLockAll<KeyboardInputGroup, KeyboardInput>(KeyboardInputSetting);
-            InputLockAll<MouseInputGroup, MouseInput>(MouseInputSetting);
-        }
-
-        public void InputUnLockAll<T, U>(string name, List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
+        private void InputUnLockAll<T, U>(string name, List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
         {
             GetInputGroup<T, U>(name, group).InputUnLockAll();
         }
 
-        public void InputUnLockAll<T, U>(List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
+        private void InputUnLockAll<T, U>(List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
         {
             foreach (T t in group)
             {
@@ -104,13 +75,7 @@ namespace XVerse.Player.Input
             }
         }
 
-        public void InputUnLockAll()
-        {
-            InputUnLockAll<KeyboardInputGroup, KeyboardInput>(KeyboardInputSetting);
-            InputUnLockAll<MouseInputGroup, MouseInput>(MouseInputSetting);
-        }
-
-        public void InputUnLockOnly<T, U>(string name, List<T> group, bool isGroupName = true) where T : PlayerInputGroup<U> where U : PlayerInput, new()
+        private void InputUnLockOnly<T, U>(string name, List<T> group, bool isGroupName = true) where T : PlayerInputGroup<U> where U : PlayerInput, new()
         {
             if (isGroupName)
             {
@@ -130,12 +95,12 @@ namespace XVerse.Player.Input
             }
         }
 
-        public void InputUnLockOnly<T, U>(string groupname, string inputname, List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
+        private void InputUnLockOnly<T, U>(string groupname, string inputname, List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
         {
             GetInputGroup<T, U>(groupname, group).InputUnLockOnly(inputname);
         }
 
-        public void InputUnLockOnly<T, U>(List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
+        private void InputUnLockOnly<T, U>(List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
         {
             foreach (T t in group)
             {
@@ -143,7 +108,7 @@ namespace XVerse.Player.Input
             }
         }
 
-        public void InputLockOnly<T, U>(string name, List<T> group, bool isGroupName = true) where T : PlayerInputGroup<U> where U : PlayerInput, new()
+        private void InputLockOnly<T, U>(string name, List<T> group, bool isGroupName = true) where T : PlayerInputGroup<U> where U : PlayerInput, new()
         {
             if (isGroupName)
             {
@@ -163,12 +128,12 @@ namespace XVerse.Player.Input
             }
         }
 
-        public void InputLockOnly<T, U>(string groupname, string inputname, List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
+        private void InputLockOnly<T, U>(string groupname, string inputname, List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
         {
             GetInputGroup<T, U>(groupname, group).InputLockOnly(inputname);
         }
 
-        public void InputLockOnly<T, U>(List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
+        private void InputLockOnly<T, U>(List<T> group) where T : PlayerInputGroup<U> where U : PlayerInput, new()
         {
             foreach (T t in group)
             {
@@ -176,57 +141,306 @@ namespace XVerse.Player.Input
             }
         }
 
-
-        public static InputSetting XtownLobbyInputSettingGroup
+        private KeyboardInput GetKey(string name)
         {
-            get
+            return GetInput<KeyboardInputGroup, KeyboardInput>(name, KeyboardInputSetting);
+        }
+
+        private MouseInput GetMouse(string name)
+        {
+            return GetInput<MouseInputGroup, MouseInput>(name, MouseInputSetting);
+        }
+
+        private KeyboardInputGroup GetKeyGroup(string name)
+        {
+            return GetInputGroup<KeyboardInputGroup, KeyboardInput>(name, KeyboardInputSetting);
+        }
+
+        private MouseInputGroup GetMouseGroup(string name)
+        {
+            return GetInputGroup<MouseInputGroup, MouseInput>(name, MouseInputSetting);
+        }
+
+        /// <summary>
+        /// Get KeyInputName of KeyInput with KeyInput name and KeyInputGroup name
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public KeyboardInputName GetKeyInput(string group, string key)
+        {
+            if (GetKeyGroup(group) != null && GetKeyGroup(group).GetInput(key) != null) { return GetKeyGroup(group).GetInput(key).InputKeyName; }
+            return KeyboardInputName.None;
+        }
+
+        /// <summary>
+        /// Get MouseInputName of MouseInput with MouseInput name and MouseInputGroup name
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="mouse"></param>
+        /// <returns></returns>
+        public MouseInputName GetMouseInput(string group, string mouse)
+        {
+            if (GetKeyGroup(group) != null && GetKeyGroup(group).GetInput(mouse) != null) { return GetMouseGroup(group).GetInput(mouse).InputMouseName; }
+            return MouseInputName.None;
+        }
+
+        /// <summary>
+        /// Change KeyInputName of KeyInput with KeyInput name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="input"></param>
+        public void ChangeKeyInput(string name, KeyboardInputName input)
+        {
+            if (GetKey(name) != null) { GetKey(name).InputKeyName = input; }
+        }
+
+        /// <summary>
+        /// Change KeyInputName of KeyInput with KeyInput name and KeyInputGroup name
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="key"></param>
+        /// <param name="input"></param>
+        public void ChangeKeyInput(string group, string key, KeyboardInputName input)
+        {
+            if (GetKeyGroup(group) != null && GetKeyGroup(group).GetInput(key) != null) { GetKeyGroup(group).GetInput(key).InputKeyName = input; }
+        }
+
+        /// <summary>
+        /// Change MouseInputName of MouseInput with MouseInput name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="input"></param>
+        public void ChangeMouseInput(string name, MouseInputName input)
+        {
+            if (GetMouse(name) != null) { GetMouse(name).InputMouseName = input; }
+        }
+
+        /// <summary>
+        /// Change MouseInputName of MouseInput with MouseInput name and MouseInputGroup name
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="mouse"></param>
+        /// <param name="input"></param>
+        public void ChangeMouseInput(string group, string mouse, MouseInputName input)
+        {
+            if (GetMouseGroup(group) != null && GetMouseGroup(group).GetInput(mouse) != null) { GetMouseGroup(group).GetInput(mouse).InputMouseName = input; }
+        }
+
+        /// <summary>
+        /// return IsInput of KeyInput with KeyInput name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public bool KeyInput(string name)
+        {
+            if (GetKey(name) == null) return false;
+            return GetKey(name).IsInput;
+        }
+
+        /// <summary>
+        /// return IsInput of KeyInput with KeyInput name and KeyInputGroup name
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool KeyInput(string group, string key)
+        {
+            if (GetKeyGroup(group) == null || GetKeyGroup(group).GetInput(key) == null) return false;
+            return GetKeyGroup(group).GetInput(key).IsInput;
+        }
+
+        /// <summary>
+        /// return IsInput of MouseInput with MouseInput name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public bool MouseInput(string name)
+        {
+            if (GetMouse(name) == null) return false;
+            return GetMouse(name).IsInput;
+        }
+
+        /// <summary>
+        /// return IsInput of MouseInput with MouseInput name and MouseInputGroup name
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="mouse"></param>
+        /// <returns></returns>
+        public bool MouseInput(string group, string mouse)
+        {
+            if (GetMouseGroup(group) == null || GetMouseGroup(group).GetInput(mouse) == null) return false;
+            return GetMouseGroup(group).GetInput(mouse).IsInput;
+        }
+
+        /// <summary>
+        /// lock all PlayerInputs
+        /// </summary>
+        public void InputLockAll()
+        {
+            InputLockAll<KeyboardInputGroup, KeyboardInput>(KeyboardInputSetting);
+            InputLockAll<MouseInputGroup, MouseInput>(MouseInputSetting);
+        }
+
+        /// <summary>
+        /// lock all KeyboardInputs
+        /// <para>if {name} is not null, lock all KeyboardInputs of the KeyboardInputGroup with name {name}</para>
+        /// </summary>
+        /// <param name="name"></param>
+        public void KeyInputLockAll(string name = null)
+        {
+            if (name == null)
             {
-                InputSetting inputSetting = new InputSetting();
-                inputSetting.InputSettingName = "XtownLobbyInputSetting";
-
-                KeyboardInputGroup MovementPlayerKeyboard = new KeyboardInputGroup();
-                MovementPlayerKeyboard.InputGroupName = "Movement";
-                MovementPlayerKeyboard.Inputs = new List<KeyboardInput>();
-                MovementPlayerKeyboard.Inputs.Add(new KeyboardInput("Front", KeyboardInputName.W, KeyboardInputType.KeyDown));
-                MovementPlayerKeyboard.Inputs.Add(new KeyboardInput("Back", KeyboardInputName.S, KeyboardInputType.KeyDown));
-                MovementPlayerKeyboard.Inputs.Add(new KeyboardInput("Left", KeyboardInputName.A, KeyboardInputType.KeyDown));
-                MovementPlayerKeyboard.Inputs.Add(new KeyboardInput("Right", KeyboardInputName.D, KeyboardInputType.KeyDown));
-                MovementPlayerKeyboard.Inputs.Add(new KeyboardInput("Jump", KeyboardInputName.Space, KeyboardInputType.Key));
-
-                KeyboardInputGroup EmotionPlayerKeyboard = new KeyboardInputGroup();
-                EmotionPlayerKeyboard.InputGroupName = "Emotion";
-                EmotionPlayerKeyboard.Inputs = new List<KeyboardInput>();
-                EmotionPlayerKeyboard.Inputs.Add(new KeyboardInput("EmotionToggle", KeyboardInputName.T, KeyboardInputType.KeyDown));
-                EmotionPlayerKeyboard.Inputs.Add(new KeyboardInput("Emotion1", KeyboardInputName.Alpha1, KeyboardInputType.KeyDown));
-                EmotionPlayerKeyboard.Inputs.Add(new KeyboardInput("Emotion2", KeyboardInputName.Alpha2, KeyboardInputType.KeyDown));
-                EmotionPlayerKeyboard.Inputs.Add(new KeyboardInput("Emotion3", KeyboardInputName.Alpha3, KeyboardInputType.KeyDown));
-                EmotionPlayerKeyboard.Inputs.Add(new KeyboardInput("Emotion4", KeyboardInputName.Alpha4, KeyboardInputType.KeyDown));
-
-                KeyboardInputGroup CameraPlayerKeyboard = new KeyboardInputGroup();
-                CameraPlayerKeyboard.InputGroupName = "Camera";
-                CameraPlayerKeyboard.Inputs = new List<KeyboardInput>();
-                CameraPlayerKeyboard.Inputs.Add(new KeyboardInput("CameraViewChange", KeyboardInputName.G, KeyboardInputType.KeyDown));
-
-                inputSetting.KeyboardInputSetting = new List<KeyboardInputGroup>
-                {
-                    MovementPlayerKeyboard,
-                    EmotionPlayerKeyboard,
-                    CameraPlayerKeyboard
-                };
-
-                MouseInputGroup CameraPlayerMouse = new MouseInputGroup();
-                CameraPlayerMouse.InputGroupName = "Camera";
-                CameraPlayerMouse.Inputs = new List<MouseInput>();
-                CameraPlayerMouse.Inputs.Add(new MouseInput("CameraDrag", MouseInputName.Right, MouseInputType.MouseDown));
-                CameraPlayerMouse.Inputs.Add(new MouseInput("CameraDragExit", MouseInputName.Right, MouseInputType.MouseUp));
-
-                inputSetting.MouseInputSetting = new List<MouseInputGroup>
-                {
-                    CameraPlayerMouse
-                };
-
-                return inputSetting;
+                InputLockAll<KeyboardInputGroup, KeyboardInput>(KeyboardInputSetting);
             }
+            else
+            {
+                InputLockAll<KeyboardInputGroup, KeyboardInput>(name, KeyboardInputSetting);
+            }
+        }
+
+        /// <summary>
+        /// lock all MouseInputs
+        /// <para>if {name} is not null, lock all MouseInputs of the MouseInputGroup with name {name}</para>
+        /// </summary>
+        /// <param name="name"></param>
+        public void MouseInputLockAll(string name = null)
+        {
+            if (name == null)
+            {
+                InputLockAll<MouseInputGroup, MouseInput>(MouseInputSetting);
+            }
+            else
+            {
+                InputLockAll<MouseInputGroup, MouseInput>(name, MouseInputSetting);
+            }
+        }
+
+        /// <summary>
+        /// unlock all PlayerInputs
+        /// </summary>
+        public void InputUnLockAll()
+        {
+            InputUnLockAll<KeyboardInputGroup, KeyboardInput>(KeyboardInputSetting);
+            InputUnLockAll<MouseInputGroup, MouseInput>(MouseInputSetting);
+        }
+
+        /// <summary>
+        /// unlock all KeyboardInputs
+        /// <para>if {name} is not null, unlock all KeyboardInputs of the KeyboardInputGroup with name {name}</para>
+        /// </summary>
+        /// <param name="name"></param>
+        public void KeyInputUnLockAll(string name = null)
+        {
+            if (name == null)
+            {
+                InputUnLockAll<KeyboardInputGroup, KeyboardInput>(KeyboardInputSetting);
+            }
+            else
+            {
+                InputUnLockAll<KeyboardInputGroup, KeyboardInput>(name, KeyboardInputSetting);
+            }
+        }
+
+        /// <summary>
+        /// unlock all MouseInputs
+        /// <para>if {name} is not null, unlock all MouseInputs of the MouseInputGroup with name {name}</para>
+        /// </summary>
+        /// <param name="name"></param>
+        public void MouseInputUnLockAll(string name = null)
+        {
+            if (name == null)
+            {
+                InputUnLockAll<MouseInputGroup, MouseInput>(MouseInputSetting);
+            }
+            else
+            {
+                InputUnLockAll<MouseInputGroup, MouseInput>(name, MouseInputSetting);
+            }
+        }
+
+        /// <summary>
+        /// unlock only KeyboardInput with KeyboardInputGroup name and KeyboardInput name
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="inputName"></param>
+        public void KeyInputUnLockOnly(string groupName, string inputName)
+        {
+            InputUnLockOnly<KeyboardInputGroup, KeyboardInput>(groupName, inputName, KeyboardInputSetting);
+        }
+
+        /// <summary>
+        /// if {isGroupName} is true, unlock all KeyboardInputs with KeyboardInputGroup name
+        /// <para>else, unlock only KeyboardInput with KeyboardInput name</para>
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="isGroupName"></param>
+        public void KeyInputUnLockOnly(string name, bool isGroupName = true)
+        {
+            InputUnLockOnly<KeyboardInputGroup, KeyboardInput>(name, KeyboardInputSetting, isGroupName);
+        }
+
+        /// <summary>
+        /// unlock only MouseInput with MouseInputGroup name and MouseInput name
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="inputName"></param>
+        public void MouseInputUnLockOnly(string groupName, string inputName)
+        {
+            InputUnLockOnly<MouseInputGroup, MouseInput>(groupName, inputName, MouseInputSetting);
+        }
+
+        /// <summary>
+        /// if {isGroupName} is true, unlock all MouseInputs with MouseInputGroup name
+        /// <para>else, unlock only MouseInput with MouseInput name</para>
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="isGroupName"></param>
+        public void MouseInputUnLockOnly(string name, bool isGroupName = true)
+        {
+            InputUnLockOnly<MouseInputGroup, MouseInput>(name, MouseInputSetting, isGroupName);
+        }
+
+        /// <summary>
+        /// lock only KeyboardInput with KeyboardInputGroup name and KeyboardInput name
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="inputName"></param>
+        public void KeyInputLockOnly(string groupName, string inputName)
+        {
+            InputLockOnly<KeyboardInputGroup, KeyboardInput>(groupName, inputName, KeyboardInputSetting);
+        }
+
+        /// <summary>
+        /// if {isGroupName} is true, lock all KeyboardInputs with KeyboardInputGroup name
+        /// <para>else, lock only KeyboardInput with KeyboardInput name</para>
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="isGroupName"></param>
+        public void KeyInputLockOnly(string name, bool isGroupName = true)
+        {
+            InputLockOnly<KeyboardInputGroup, KeyboardInput>(name, KeyboardInputSetting, isGroupName);
+        }
+
+        /// <summary>
+        /// lock only MouseInput with MouseInputGroup name and MouseInput name
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="inputName"></param>
+        public void MouseInputLockOnly(string groupName, string inputName)
+        {
+            InputLockOnly<MouseInputGroup, MouseInput>(groupName, inputName, MouseInputSetting);
+        }
+
+        /// <summary>
+        /// if {isGroupName} is true, lock all MouseInputs with MouseInputGroup name
+        /// <para>else, lock only MouseInput with MouseInput name</para>
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="isGroupName"></param>
+        public void MouseInputLockOnly(string name, bool isGroupName = true)
+        {
+            InputLockOnly<MouseInputGroup, MouseInput>(name, MouseInputSetting, isGroupName);
         }
     }
 }

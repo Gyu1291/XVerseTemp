@@ -20,9 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Loading.unity
     guid: 8daf794a03066c645a7958c4ef49f10c
-  - enabled: 1
-    path: Assets/Scenes/PlayerControlTest.unity
-    guid: 0193ba4f1ad1d154e987a13f80185697
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
     path: Assets/Scenes/OpenSpace.unity
     guid: 727279e244306394988c83a53a52ee6d

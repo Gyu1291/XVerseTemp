@@ -16,6 +16,8 @@ MonoBehaviour:
     key:
     - _classRef: XVerse.UI.ButtonStyle, xreal.xui.Runtime
     - _classRef: XVerse.UI.LabelStyle, xreal.xui.Runtime
+    - _classRef: XVerse.UI.BackgroundStyle, xreal.xui.Runtime
     value:
     - {fileID: 11400000, guid: d7e57d4154b75874bb46ed847f0d4f13, type: 2}
     - {fileID: 11400000, guid: 0e0687b15da93164c9c4129d6d8ce686, type: 2}
+    - {fileID: 11400000, guid: 6a64e624a59e5a84cb4312cd66dc5254, type: 2}

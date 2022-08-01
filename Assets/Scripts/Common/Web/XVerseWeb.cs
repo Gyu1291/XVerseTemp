@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class XVerseWeb 
+public class XVerseWeb
 {
-    public enum XVerseRequestTypes{
+    public enum XVerseRequestTypes
+    {
         GET, POST, DOWNLOAD
     }
     public const string XVerseServiceEndPoint = "http://ec2-3-39-192-103.ap-northeast-2.compute.amazonaws.com";
@@ -30,7 +31,7 @@ public class XVerseWeb
             case XVerseRequestTypes.GET:
                 return UnityWebRequest.Get(URL);
             case XVerseRequestTypes.POST:
-                WWWForm form = ParseFormParameters(formData);
+                string form = ParseFormParameters(formData);
                 return UnityWebRequest.Post(URL, form);
         }
         return null;
@@ -46,17 +47,17 @@ public class XVerseWeb
     /// <param name="token">use XVerseFirebase.UserToken</param>
     /// <param name="formData"></param>
     /// <returns></returns>
-    public static IEnumerator MakeWebRequest(string URL, XVerseRequestTypes type, 
+    public static IEnumerator MakeWebRequest(string URL, XVerseRequestTypes type,
         Action<ResponseData> successHandler, Action<FailResponseData> failHandler = null, string token = null, params string[] formData)
     {
-        
+
 
         switch (type)
         {
             case XVerseRequestTypes.GET:
                 using (UnityWebRequest request = UnityWebRequest.Get(URL))
                 {
-                    request.SetRequestHeader(FIREBASE_TOKEN, token);
+                    if (!string.IsNullOrEmpty(token)) request.SetRequestHeader(FIREBASE_TOKEN, token);
                     yield return request.SendWebRequest();
                     // process result
                     if (request.result == UnityWebRequest.Result.Success)
@@ -83,10 +84,17 @@ public class XVerseWeb
                 break;
 
             case XVerseRequestTypes.POST:
-                WWWForm form = ParseFormParameters(formData);
-                using (UnityWebRequest request = UnityWebRequest.Post(URL, form))
+                string form = ParseFormParameters(formData);
+                using (UnityWebRequest request = new UnityWebRequest(URL, "POST"))
                 {
-                    request.SetRequestHeader(FIREBASE_TOKEN, token);
+                    // set POST parameters in json.
+                    byte[] bodyRaw = Encoding.UTF8.GetBytes(form);
+                    request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                    request.downloadHandler = new DownloadHandlerBuffer();
+
+                    // set headers
+                    if (!string.IsNullOrEmpty(token)) request.SetRequestHeader(FIREBASE_TOKEN, token);
+                    request.SetRequestHeader("Content-Type", "application/json");
 
                     yield return request.SendWebRequest();
 
@@ -112,20 +120,52 @@ public class XVerseWeb
                     }
                     else throw new ArgumentException("encountered unexpected error");
                 }
+                /*
+                using (UnityWebRequest request = UnityWebRequest.Post(URL, form))
+                {
+                    if (!string.IsNullOrEmpty(token)) request.SetRequestHeader(FIREBASE_TOKEN, token);
+                    request.SetRequestHeader("Content-Type", "application/json");
+                    yield return request.SendWebRequest();
+
+                    // process result
+                    if (request.result == UnityWebRequest.Result.Success)
+                    {
+                        // successful
+                        ResponseData data = new ResponseData();
+                        data.Data = request.downloadHandler.data;
+                        data.Length = request.downloadedBytes;
+                        data.ResponseCode = request.responseCode;
+                        successHandler(data);
+                    }
+                    else if (request.result == UnityWebRequest.Result.ConnectionError ||
+                        request.result == UnityWebRequest.Result.ProtocolError ||
+                        request.result == UnityWebRequest.Result.DataProcessingError)
+                    {
+                        // failed
+                        FailResponseData data = new FailResponseData();
+                        data.ResponseCode = request.responseCode;
+                        data.Message = request.error;
+                        failHandler(data);
+                    }
+                    else throw new ArgumentException("encountered unexpected error");
+                }
+                */
                 break;
 
         }
     }
-    protected static WWWForm ParseFormParameters(string[] parameters)
+    protected static string ParseFormParameters(string[] parameters)
     {
-        
-        WWWForm form = new WWWForm();
+
+        string form = "{";
         if (parameters.Length % 2 != 0) throw new ArithmeticException("Invalid number of parameters. The signature is key1, value1, key2, value2 ...");
-        for(int i = 0; i < parameters.Length/2; ++i)
+        int lastIndex = parameters.Length / 2;
+        for (int i = 0; i < lastIndex; ++i)
         {
-            form.AddField(parameters[2 * i], parameters[2 * i + 1]);
-            Debug.Log($"{parameters[2 * i]}:{parameters[2 * i + 1]}");
+            form += $"\"{parameters[2 * i]}\": \"{parameters[2 * i + 1]}\"" + (i < lastIndex - 1 ? "," : "");
         }
+        form += "}";
+        Debug.Log(form);
         return form;
     }
 
@@ -190,8 +230,10 @@ public class ResponseData
     public long ResponseCode;
     public ulong Length;
 
-    public string ResponseString {
-        get {
+    public string ResponseString
+    {
+        get
+        {
             return Encoding.UTF8.GetString(Data);
         }
     }

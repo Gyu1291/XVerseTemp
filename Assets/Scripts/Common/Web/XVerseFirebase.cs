@@ -1,5 +1,6 @@
-using Firebase;
+﻿using Firebase;
 using Firebase.Auth;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +8,6 @@ using System.Net;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
-
 public class XVerseFirebase : MonoBehaviour
 {
     private static XVerseFirebase _instance = null;
@@ -36,19 +36,19 @@ public class XVerseFirebase : MonoBehaviour
     }
     private FirebaseAuth auth;
     private FirebaseUser user;
-
+    public FirebaseUser CurrentUser => user;
     private void Awake()
     {
         if (_instance is null) _instance = this;
     }
 
-    private void Start()
+    /*private void Start()
     {
         StartCoroutine(CheckAndFixDependanies());
         
-    }
+    }*/
 
-    private IEnumerator CheckAndFixDependanies()
+    public IEnumerator CheckAndFixDependanies()
     {
         var checkAndFixDependanciesTask = FirebaseApp.CheckAndFixDependenciesAsync();
 
@@ -80,11 +80,15 @@ public class XVerseFirebase : MonoBehaviour
             if (!signedIn && user != null)
             {
                 Debug.Log("Signed Out");
+
+
             }
             user = auth.CurrentUser;
             if (signedIn)
             {
                 Debug.Log($"Signed In: {user.DisplayName}");
+                //test code
+                //GetComponent<LoginTest>().SignIn(user.UserId);
             }
         }
     }
@@ -93,7 +97,7 @@ public class XVerseFirebase : MonoBehaviour
     private void OnGUI()
     {
         //test code
-        if (GUI.Button(new Rect(20, 20, 100, 20), "register")) StartCoroutine(RegisterLogic(Username, Email, Pass));
+        if (GUI.Button(new Rect(20, 20, 100, 20), "register")) StartCoroutine(RegisterLogic(Username, Email, Pass, ()=>{}, (error) => { }));
         if (GUI.Button(new Rect(20, 45, 100, 20), "Ping Server"))
         {
             if (string.IsNullOrEmpty(UserToken))
@@ -108,7 +112,7 @@ public class XVerseFirebase : MonoBehaviour
             UserToken
         ));
         }
-        if (GUI.Button(new Rect(20, 70, 100, 20), "signIn")) StartCoroutine(LoginLogic(Email, Pass));
+        if (GUI.Button(new Rect(20, 70, 100, 20), "signIn")) StartCoroutine(LoginLogic(Email, Pass, () => { }, (error) => { }));
         if (GUI.Button(new Rect(20, 95, 100, 30), "refresh token")) RefreshToken();
     }
 
@@ -130,7 +134,7 @@ public class XVerseFirebase : MonoBehaviour
 
         return result;
     }
-    
+
 
     #region SIGNOUT
     public void SignOut()
@@ -139,7 +143,7 @@ public class XVerseFirebase : MonoBehaviour
     }
     #endregion
     #region SIGNIN
-    private IEnumerator LoginLogic(string email, string password)
+    public IEnumerator LoginLogic(string email, string password, Action successHandler, Action<AuthError> failHandler)
     {
         Credential credential = EmailAuthProvider.GetCredential(email, password);
         var loginTask = auth.SignInWithCredentialAsync(credential);
@@ -150,35 +154,19 @@ public class XVerseFirebase : MonoBehaviour
         {
             FirebaseException firevaseException = (FirebaseException)loginTask.Exception.GetBaseException();
             AuthError error = (AuthError)firevaseException.ErrorCode;
-            string output = "Unkown Error, Please Try Again";
 
-            switch (error)
-            {
-                case AuthError.MissingEmail:
-                    output = "Please Enter Your Email";
-                    break;
-                case AuthError.MissingPassword:
-                    output = "Please Enter Your Password";
-                    break;
-                case AuthError.InvalidEmail:
-                    output = "Invalid Email";
-                    break;
-                case AuthError.WrongPassword:
-                    output = "Wrond Password";
-                    break;
-                case AuthError.UserNotFound:
-                    output = "Account Does Not Exist";
-                    break;
-            }
+            failHandler(error);
+
         }
         else
         {
+            successHandler();
             Debug.Log($"signed in as {auth.CurrentUser.Email}");
         }
     }
     #endregion
     #region REGISTER
-    private IEnumerator RegisterLogic(string username, string email, string password)
+    public IEnumerator RegisterLogic(string username, string email, string password, Action successHandler, Action<AuthError> failHandler)
     {
         if (username == "") { Debug.LogError("Please Enter A Username"); }
         else
@@ -191,26 +179,8 @@ public class XVerseFirebase : MonoBehaviour
             {
                 FirebaseException firevaseException = (FirebaseException)registerTask.Exception.GetBaseException();
                 AuthError error = (AuthError)firevaseException.ErrorCode;
-                string output = "Unkown Error, Please Try Again";
+                failHandler(error);
 
-                switch (error)
-                {
-                    case AuthError.InvalidEmail:
-                        output = "Invalid Email";
-                        break;
-                    case AuthError.EmailAlreadyInUse:
-                        output = "Email Already In Use";
-                        break;
-                    case AuthError.WeakPassword:
-                        output = "Weak Password";
-                        break;
-                    case AuthError.MissingEmail:
-                        output = "Please Enter Your Email";
-                        break;
-                    case AuthError.MissingPassword:
-                        output = "Please Enter Your Password";
-                        break;
-                }
             }
             else
             {
@@ -229,21 +199,12 @@ public class XVerseFirebase : MonoBehaviour
                     user.DeleteAsync();
                     FirebaseException firebaseException = (FirebaseException)defaultUserTask.Exception.GetBaseException();
                     AuthError error = (AuthError)firebaseException.ErrorCode;
-                    string output = "Unkown Error, Please Try Again";
+                    failHandler(error);
 
-                    switch (error)
-                    {
-                        case AuthError.Cancelled:
-                            output = "Update User Cancelled";
-                            break;
-                        case AuthError.SessionExpired:
-                            output = "Session Expired";
-                            break;
-
-                    }
                 }
                 else
                 {
+                    successHandler();
                     Debug.Log($"Firebase User Created Successfully: {user.DisplayName} ({user.UserId})");
                     //StartCoroutine(SendVerificationEmail());
                 }
